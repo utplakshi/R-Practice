@@ -1,0 +1,7 @@
+require(stats)
+plot(cars)
+lines(lowess(cars))
+plot(sin,-pi,2*pi)
+Plot:plot(table(rpois(100,5)), type="h", col="red", lwd=10, main="rpois(100, lamda=5)")
+plot(x<-sort(rnorm(47)),type = "s",main = "plot(x , type=\"s\")")
+points(x, cex=0.5,col="dark red")
