@@ -1,0 +1,487 @@
+---
+title: "lab6.rmd"
+author: "utplakshi"
+date: "11/10/2021"
+output: html_document
+---
+
+```{r, echo=TRUE}
+defaultW <- getOption("warn") 
+options(warn = -1) 
+options(warn = defaultW)
+```
+
+Consider the COVID-19 pandemic situation. Analysis and forcast the pandemic trend by 
+using Covid19 dataset 
+1. You want to predict the last year monthly, weekly trend based on the RTPCR response, 
+(i.e) No. of +Ve cases and No. –Ve cases along with admitted and discharged trend.
+2. Identify the deathrate due to Covid-19
+3. Compare the last year and this year trend and forcast the 3rd Wave impact in India
+4. Construct the model using the Simple moving average, Exponential Moving Average 
+and ARIMA to forcast the Covid19 Dataset.
+5. Show the all above implementation with the visual impact
+
+```{r, echo=TRUE}
+######## Q1 ########
+library(dplyr)
+library(janitor)
+TEST <- read.table("E:/Datasets/StatewiseTestingDetails.csv", header=T, sep=",")
+head(TEST)
+nrow(TEST)
+TEST <- TEST[!is.na(TEST$TotalSamples), ]
+nrow(TEST)
+head(TEST)
+tail(TEST)
+TEST <- TEST[order(TEST$Date),]
+row.names(TEST) <- NULL
+head(TEST)
+nrow(TEST)
+####################  RTPCR rate using all models ###################
+RTPCR_df <- data.frame(TEST$Date, TEST$TotalSamples)
+head(RTPCR_df)
+tail(RTPCR_df)
+RTPCR_df <- aggregate(RTPCR_df["TEST.TotalSamples"], by=RTPCR_df["TEST.Date"], sum)
+head(RTPCR_df)
+tail(RTPCR_df)
+#################### Monthly  RTPCR rate using all models ###################
+#Simple Movie Average
+RTPCR_df_timeseries<-  ts(RTPCR_df$TEST.TotalSamples, freq=12 ,  start=c(2020, 4), end=c(2021, 8))
+head(RTPCR_df_timeseries)
+class(RTPCR_df_timeseries)
+RTPCR_df_timeseries
+plot.ts(RTPCR_df_timeseries)
+library("TTR")
+RTPCR_df_timeseries_SMA <- SMA(RTPCR_df_timeseries,n=1)
+RTPCR_df_timeseries_SMA
+plot.ts(RTPCR_df_timeseries_SMA)
+#Exponential Smoothing 
+RTPCR_smooth <- HoltWinters(RTPCR_df_timeseries, beta=FALSE, gamma=FALSE)
+RTPCR_smooth$fitted
+plot(RTPCR_smooth)
+RTPCR_smooth$SSE
+HoltWinters(RTPCR_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+RTPCR_forcast <- forecast:::forecast.HoltWinters(RTPCR_smooth, h=8)
+RTPCR_forcast
+# Arima :-
+plot(RTPCR_df_timeseries)
+#This will plot the time series
+abline(reg=lm(RTPCR_df_timeseries~time(RTPCR_df_timeseries)))
+cycle(RTPCR_df_timeseries)
+#plot(aggregate(RTPCR_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(RTPCR_df_timeseries~cycle(RTPCR_df_timeseries))
+acf(log(RTPCR_df_timeseries))
+pacf(diff(log(RTPCR_df_timeseries)))
+(fit <- arima(log(RTPCR_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(RTPCR_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#################### Weekely  RTPCR  rate using all models ###################
+#Simple Movie Average
+RTPCR_df_timeseries<-  ts(RTPCR_df$TEST.TotalSamples, freq=52 ,  start=c(2020, 4), end=c(2021, 8))
+head(RTPCR_df_timeseries)
+class(RTPCR_df_timeseries)
+RTPCR_df_timeseries
+plot.ts(RTPCR_df_timeseries)
+library("TTR")
+RTPCR_df_timeseries_SMA <- SMA(RTPCR_df_timeseries,n=1)
+RTPCR_df_timeseries_SMA
+plot.ts(RTPCR_df_timeseries_SMA)
+#Exponential Smoothing 
+RTPCR_smooth <- HoltWinters(RTPCR_df_timeseries, beta=FALSE, gamma=FALSE)
+RTPCR_smooth$fitted
+plot(RTPCR_smooth)
+RTPCR_smooth$SSE
+HoltWinters(RTPCR_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+RTPCR_forcast <- forecast:::forecast.HoltWinters(RTPCR_smooth, h=8)
+RTPCR_forcast
+# Arima :-
+plot(RTPCR_df_timeseries)
+#This will plot the time series
+abline(reg=lm(RTPCR_df_timeseries~time(RTPCR_df_timeseries)))
+cycle(RTPCR_df_timeseries)
+#plot(aggregate(RTPCR_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(RTPCR_df_timeseries~cycle(RTPCR_df_timeseries))
+
+acf(log(RTPCR_df_timeseries))
+pacf(diff(log(RTPCR_df_timeseries)))
+(fit <- arima(log(RTPCR_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(RTPCR_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+
+
+
+TEST <- read.table("E:/Datasets/StatewiseTestingDetails.csv", header=T, sep=",")
+#E:/Datasets/StatewiseTestingDetails.csv
+head(TEST)
+nrow(TEST)
+TEST <- TEST[!is.na(TEST$Positive), ]
+nrow(TEST)
+head(TEST)
+tail(TEST)
+TEST <- TEST[order(TEST$Date),]
+row.names(TEST) <- NULL
+head(TEST)
+nrow(TEST)
+####################  positivity rate using all models ###################
+Positive_df <- data.frame(TEST$Date, TEST$Positive)
+head(Positive_df)
+tail(Positive_df)
+Positive_df <- aggregate(Positive_df["TEST.Positive"], by=Positive_df["TEST.Date"], sum)
+head(Positive_df)
+tail(Positive_df)
+#################### Monthly  positivity rate using all models ###################
+#Simple Movie Average
+
+Positive_df_timeseries<-  ts(Positive_df$TEST.Positive, freq=12 ,  start=c(2020, 4), end=c(2021, 8))
+head(Positive_df_timeseries)
+class(Positive_df_timeseries)
+Positive_df_timeseries
+plot.ts(Positive_df_timeseries)
+library("TTR")
+Positive_df_timeseries_SMA <- SMA(Positive_df_timeseries,n=1)
+Positive_df_timeseries_SMA
+plot.ts(Positive_df_timeseries_SMA)
+#Exponential Smoothing 
+Positive_smooth <- HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE)
+Positive_smooth$fitted
+plot(Positive_smooth)
+Positive_smooth$SSE
+HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Positive_forcast <- forecast:::forecast.HoltWinters(Positive_smooth, h=8)
+Positive_forcast
+# Arima :-
+plot(Positive_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Positive_df_timeseries~time(Positive_df_timeseries)))
+cycle(Positive_df_timeseries)
+#plot(aggregate(Positive_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Positive_df_timeseries~cycle(Positive_df_timeseries))
+acf(log(Positive_df_timeseries))
+pacf(diff(log(Positive_df_timeseries)))
+(fit <- arima(log(Positive_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Positive_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#################### Weekly  positive rate using all models ###################
+#Simple Movie Average
+Positive_df_timeseries<-  ts(Positive_df$TEST.Positive, freq=52 ,  start=c(2020, 4), end=c(2021, 8))
+head(Positive_df_timeseries)
+class(Positive_df_timeseries)
+Positive_df_timeseries
+plot.ts(Positive_df_timeseries)
+library("TTR")
+Positive_df_timeseries_SMA <- SMA(Positive_df_timeseries,n=1)
+Positive_df_timeseries_SMA
+plot.ts(Positive_df_timeseries_SMA)
+# Exponential Smoothing
+Positive_smooth <- HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE)
+Positive_smooth$fitted
+plot(Positive_smooth)
+Positive_smooth$SSE
+HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Positive_forcast <- forecast:::forecast.HoltWinters(Positive_smooth, h=8)
+Positive_forcast
+# Arima :-
+plot(Positive_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Positive_df_timeseries~time(Positive_df_timeseries)))
+cycle(Positive_df_timeseries)
+#plot(aggregate(Positive_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Positive_df_timeseries~cycle(Positive_df_timeseries))
+acf(log(Positive_df_timeseries))
+pacf(diff(log(Positive_df_timeseries)))
+(fit <- arima(log(Positive_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 8*7)
+pred
+ts.plot(Positive_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+library(dplyr)
+library(janitor)
+TEST <- read.table("E:/Datasets/StatewiseTestingDetails.csv", header=T, sep=",")
+head(TEST)
+nrow(TEST)
+TEST <- TEST[!is.na(TEST$Negative), ]
+nrow(TEST)
+head(TEST)
+tail(TEST)
+TEST <- TEST[order(TEST$Date),]
+row.names(TEST) <- NULL
+head(TEST)
+nrow(TEST)
+####################  Negative rate using all models ###################
+Negative_df <- data.frame(TEST$Date, TEST$Negative)
+head(Negative_df)
+tail(Negative_df)
+Negative_df <- aggregate(Negative_df["TEST.Negative"], by=Negative_df["TEST.Date"], sum)
+head(Negative_df)
+tail(Negative_df)
+#################### Monthly  Negative rate using all models ###################
+#Simple Movie Average
+Negative_df_timeseries<-  ts(Negative_df$TEST.Negative, freq=12 ,  start=c(2020, 4), end=c(2021, 8))
+head(Negative_df_timeseries)
+class(Negative_df_timeseries)
+Negative_df_timeseries
+plot.ts(Negative_df_timeseries)
+library("TTR")
+Negative_df_timeseries_SMA <- SMA(Negative_df_timeseries,n=1)
+Negative_df_timeseries_SMA
+plot.ts(Negative_df_timeseries_SMA)
+#Exponential Smoothing 
+Negative_smooth <- HoltWinters(Negative_df_timeseries, beta=FALSE, gamma=FALSE)
+Negative_smooth$fitted
+plot(Negative_smooth)
+Negative_smooth$SSE
+HoltWinters(Negative_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Negative_forcast <- forecast:::forecast.HoltWinters(Negative_smooth, h=8)
+Negative_forcast
+# Arima :-
+plot(Negative_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Negative_df_timeseries~time(Negative_df_timeseries)))
+cycle(Negative_df_timeseries)
+#plot(aggregate(Negative_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Negative_df_timeseries~cycle(Negative_df_timeseries))
+acf(log(Negative_df_timeseries))
+pacf(diff(log(Negative_df_timeseries)))
+(fit <- arima(log(Negative_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Negative_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#################### Weekly  Negative rate using all models ###################
+#Simple Movie Average
+Negative_df_timeseries<-  ts(Negative_df$TEST.Negative, freq=52 ,  start=c(2020, 4), end=c(2021, 8))
+head(Negative_df_timeseries)
+class(Negative_df_timeseries)
+Negative_df_timeseries
+plot.ts(Negative_df_timeseries)
+library("TTR")
+Negative_df_timeseries_SMA <- SMA(Negative_df_timeseries,n=1)
+Negative_df_timeseries_SMA
+plot.ts(Negative_df_timeseries_SMA)
+# Exponential Smoothing
+Negative_smooth <- HoltWinters(Negative_df_timeseries, beta=FALSE, gamma=FALSE)
+Negative_smooth$fitted
+plot(Negative_smooth)
+Negative_smooth$SSE
+HoltWinters(Negative_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Negative_forcast <- forecast:::forecast.HoltWinters(Negative_smooth, h=8)
+Negative_forcast
+# Arima :-
+plot(Negative_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Negative_df_timeseries~time(Negative_df_timeseries)))
+cycle(Negative_df_timeseries)
+#plot(aggregate(Negative_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Negative_df_timeseries~cycle(Negative_df_timeseries))
+acf(log(Negative_df_timeseries))
+pacf(diff(log(Negative_df_timeseries)))
+(fit <- arima(log(Negative_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Negative_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#####Q2. ########
+library(dplyr)
+library(janitor)
+COVID_19 <- read.table("E:/Datasets/covid_19_india.csv", header=T, sep=",")
+head(COVID_19)
+nrow(COVID_19)
+COVID_19[COVID_19 == '-'] <- NA  
+COVID_19[COVID_19 == 0] <- NA 
+COVID_19 <- COVID_19[!is.na(COVID_19$Deaths), ]
+nrow(COVID_19)
+head(COVID_19)
+tail(COVID_19)
+COVID_19 <- COVID_19[order(COVID_19$Date),]
+row.names(COVID_19) <- NULL
+head(COVID_19)
+nrow(COVID_19)
+####################  Death rate using all models ###################
+Death_df <- data.frame(COVID_19$Date, COVID_19$Deaths)
+head(Death_df)
+tail(Death_df)
+
+Death_df <- aggregate(Death_df["COVID_19.Deaths"], by=Death_df["COVID_19.Date"], sum)
+head(Death_df)
+tail(Death_df)
+#################### Monthly  Death rate using all models ###################
+#Simple Movie Average
+Death_df_timeseries<-  ts(Death_df$COVID_19.Deaths, freq=12 ,  start=c(2020, 4), end=c(2021, 8))
+head(Death_df_timeseries)
+class(Death_df_timeseries)
+Death_df_timeseries
+plot.ts(Death_df_timeseries)
+library("TTR")
+Death_df_timeseries_SMA <- SMA(Death_df_timeseries,n=1)
+Death_df_timeseries_SMA
+plot.ts(Death_df_timeseries_SMA)
+#Exponential Smoothing 
+Death_smooth <- HoltWinters(Death_df_timeseries, beta=FALSE, gamma=FALSE)
+Death_smooth$fitted
+plot(Death_smooth)
+Death_smooth$SSE
+HoltWinters(Death_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Death_forcast <- forecast:::forecast.HoltWinters(Death_smooth, h=8)
+Death_forcast
+# Arima :-
+plot(Death_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Death_df_timeseries~time(Death_df_timeseries)))
+cycle(Death_df_timeseries)
+#plot(aggregate(Death_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Death_df_timeseries~cycle(Death_df_timeseries))
+acf(log(Death_df_timeseries))
+pacf(diff(log(Death_df_timeseries)))
+(fit <- arima(log(Death_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Death_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#################### Weekly  Death  rate using all models ###################
+#Simple Movie Average
+Death_df_timeseries<-  ts(Death_df$COVID_19.Deaths, freq=52 ,  start=c(2020, 4), end=c(2021, 8))
+head(Death_df_timeseries)
+class(Death_df_timeseries)
+Death_df_timeseries
+plot.ts(Death_df_timeseries)
+library("TTR")
+Death_df_timeseries_SMA <- SMA(Death_df_timeseries,n=1)
+Death_df_timeseries_SMA
+plot.ts(Death_df_timeseries_SMA)
+#Exponential Smoothing 
+Death_smooth <- HoltWinters(Death_df_timeseries, beta=FALSE, gamma=FALSE)
+Death_smooth$fitted
+plot(Death_smooth)
+Death_smooth$SSE
+HoltWinters(Death_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Death_forcast <- forecast:::forecast.HoltWinters(Death_smooth, h=8)
+Death_forcast
+# Arima :-
+plot(Death_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Death_df_timeseries~time(Death_df_timeseries)))
+cycle(Death_df_timeseries)
+#plot(aggregate(Death_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Death_df_timeseries~cycle(Death_df_timeseries))
+acf(log(Death_df_timeseries))
+pacf(diff(log(Death_df_timeseries)))
+(fit <- arima(log(Death_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Death_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#######Q3. ###############
+library(dplyr)
+library(janitor)
+EXPECTATION <- read.table("E:/Datasets/StatewiseTestingDetails.csv", header=T, sep=",")
+head(EXPECTATION)
+nrow(EXPECTATION)
+EXPECTATION <- EXPECTATION[!is.na(EXPECTATION$Positive), ]
+nrow(EXPECTATION)
+head(EXPECTATION)
+tail(EXPECTATION)
+EXPECTATION <- EXPECTATION[order(EXPECTATION$Date),]
+row.names(EXPECTATION) <- NULL
+head(EXPECTATION)
+nrow(EXPECTATION)
+####################  Third Wave Prediction ###################
+Positive_df <- data.frame(EXPECTATION$Date, EXPECTATION$Positive)
+head(Positive_df)
+tail(Positive_df)
+Positive_df <- aggregate(Positive_df["EXPECTATION.Positive"], by=Positive_df["EXPECTATION.Date"], sum)
+head(Positive_df)
+tail(Positive_df)
+#################### Based on Month using three models ###################
+#Simple Movie Average
+Positive_df_timeseries<-  ts(Positive_df$EXPECTATION.Positive, freq=12 ,  start=c(2020, 4), end=c(2021, 8))
+head(Positive_df_timeseries)
+class(Positive_df_timeseries)
+Positive_df_timeseries
+plot.ts(Positive_df_timeseries)
+library("TTR")
+Positive_df_timeseries_SMA <- SMA(Positive_df_timeseries,n=1)
+Positive_df_timeseries_SMA
+plot.ts(Positive_df_timeseries_SMA)
+#Exponential Smoothing 
+Positive_smooth <- HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE)
+Positive_smooth$fitted
+plot(Positive_smooth)
+Positive_smooth$SSE
+HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Positive_forcast <- forecast:::forecast.HoltWinters(Positive_smooth, h=8)
+Positive_forcast
+# Arima :-
+plot(Positive_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Positive_df_timeseries~time(Positive_df_timeseries)))
+cycle(Positive_df_timeseries)
+#plot(aggregate(Positive_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Positive_df_timeseries~cycle(Positive_df_timeseries))
+acf(log(Positive_df_timeseries))
+pacf(diff(log(Positive_df_timeseries)))
+(fit <- arima(log(Positive_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 1*12)
+pred
+ts.plot(Positive_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+#################### Based on Week using three models ###################
+#Simple Movie Average
+Positive_df_timeseries<-  ts(Positive_df$EXPECTATION.Positive, freq=52 ,  start=c(2020, 4), end=c(2021, 8))
+head(Positive_df_timeseries)
+class(Positive_df_timeseries)
+Positive_df_timeseries
+plot.ts(Positive_df_timeseries)
+library("TTR")
+Positive_df_timeseries_SMA <- SMA(Positive_df_timeseries,n=1)
+Positive_df_timeseries_SMA
+plot.ts(Positive_df_timeseries_SMA)
+#Exponential Smoothing 
+Positive_smooth <- HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE)
+Positive_smooth$fitted
+plot(Positive_smooth)
+Positive_smooth$SSE
+HoltWinters(Positive_df_timeseries, beta=FALSE, gamma=FALSE, l.start=23.56)
+library("forecast")
+Positive_forcast <- forecast:::forecast.HoltWinters(Positive_smooth, h=8)
+Positive_forcast
+# Arima :-
+plot(Positive_df_timeseries)
+#This will plot the time series
+abline(reg=lm(Positive_df_timeseries~time(Positive_df_timeseries)))
+cycle(Positive_df_timeseries)
+#plot(aggregate(Positive_df_timeseries,FUN=mean))
+#This will aggregate the cycles and display a year on year trend
+boxplot(Positive_df_timeseries~cycle(Positive_df_timeseries))
+acf(log(Positive_df_timeseries))
+pacf(diff(log(Positive_df_timeseries)))
+(fit <- arima(log(Positive_df_timeseries), c(0, 1, 1),seasonal = list(order = c(0, 1, 1), period = 12)))
+pred <- predict(fit, n.ahead = 8*7)
+pred
+ts.plot(Positive_df_timeseries,2.718^pred$pred, log = "y", lty = c(1,3))
+
+
+
+
+
+
+
+
+
+
+
+
+```
