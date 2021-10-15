@@ -1,0 +1,327 @@
+---
+title: "Foundations of Data Analytics"
+subtitle: Week-8
+author: "19BCE1597-Utplakshi"
+date: 15-10-2021
+output: html_document
+---
+
+##### 1. Given an integer `n`, perform the following conditional actions:
+* If `n` is odd, print  Weird
+* If`n` is even and in the inclusive range of `2`  to `5`, print  Not Weird
+* If `n` is even and in the inclusive range of `6`  to  `20`, print  Weird
+* If `n` is even and greater than `20`, print  Not Weird.
+
+```{r, echo=FALSE}
+n = 27
+if(n%%2==1) {
+  print("Weird")
+} else {
+  if(n>=2 && n<=5) {
+    print("Not Weird")
+  } else if(n>=6 && n<=20) {
+    print("Weird")
+  } else{
+    print("Not Weird")
+  }
+}
+```
+
+##### 2. Given a vehicle reg. no. `n`, perform the following conditional actions: 
+* if the last 4 digits of the vehicle no. is `odd` and 'non-prime' print `vehicle is allowed on Saturday and Sunday`.
+* if the last 4 digits of the vehicle no. is `even` print `vehicle is allowed on Monday and Tuesday`.
+* if the last 4 digits of the vehicle no. is `odd` and 'prime' print `vehicle is allowed on Wednesday to Thursday`.
+```{r, echo=FALSE}
+isPrime <- function(num) {
+  flag = 0
+  if(num > 1) {
+    flag = 1
+    for(i in 2:(num-1)) {
+      if ((num %% i) == 0) {
+        flag = 0
+        break
+      }
+    }
+  } 
+  if(num == 2)
+    flag = 1
+  if(flag == 1) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+N = 3
+if (N%%2==1 & !isPrime(N)) {
+  print("Vehicle is allowed on Saturday and Sunday")
+} else if (N%%2==0) {
+  print("Vehicle is allowed on Monday and Tuesday")
+} else if (N%%2==1 & isPrime(N)) {
+  print("Vehicle is allowed on Wednesday to Thursday")
+}
+```
+ 
+##### 3. Read your full name and print the number of vowels and consonants present in your name. 
+```{r, echo=FALSE}
+name = "Utplakshi"
+get_count <- function(input_str){
+  split_str <- strsplit(input_str, "")[[1]]
+  vowellist <- c("a", "e", "i", "o", "u")
+  charcount <- 0 
+  constcount <- 0
+  for (character in split_str){
+    if (character %in% vowellist){
+        charcount <- charcount + 1
+    } else if(character!=' '){
+      constcount <- constcount+1
+    }
+  }
+  print(charcount)
+  print(constcount)
+}
+get_count(name)
+```
+
+##### 4. Check the password is valid or not based on password policies mention below:
+* Password should not contain any space.
+* Password should contain at least one digit(0-9).
+* Password length should be between 8 to 15 characters.
+* Password should contain at least one lowercase letter(a-z).
+* Password should contain at least one uppercase letter(A-Z).
+* Password should contain at least one special character ( @, #, %, &, !, $, etc….).
+```{r, echo=FALSE}
+space <- c(' ')
+spc <- c("@","#","%","!","$")
+low <- strsplit(intToUtf8(97:122), '')[[1]]
+up <- strsplit(intToUtf8(65:90), '')[[1]]
+num <- c(0:9)
+
+isCheckOne <- function(str, arr) {
+  flag = 0
+  for (i in str) {
+    if(i %in% arr) {
+      flag = 1
+      break
+    }
+  }
+  if(flag==1) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+str <- strsplit("UtplakshiS@13", '')[[1]]
+if(length(str)>=8 & length(str)<=15 & (isCheckOne(str, spc)) & (isCheckOne(str, low)) & (isCheckOne(str, up)) &(isCheckOne(str, num))) {
+  print("Password is Valid")
+} else {
+  print("Password is invalid")
+}
+```
+
+##### 5. Find the strength of the password. Let a strong password is one that satisfies all the below conditions. A moderate password is one that satisfies first three conditions and has length at least `6`, otherwise password is week. 
+* It contains at least one lowercase English character.
+* It contains at least one uppercase English character.
+* It contains at least one special character. The special characters are: !@#$%^&*()-+
+* Its length is at least 8.
+* It contains at least one digit.
+```{r, echo=FALSE}
+spc <- c("!","@","#","%","$","^","*","(",")","-","+")
+low <- strsplit(intToUtf8(97:122), '')[[1]]
+up <- strsplit(intToUtf8(65:90), '')[[1]]
+num <- c(0:9)
+
+isCheckOne <- function(str, arr) {
+  flag = 0
+  for (i in str) {
+    if(i %in% arr) {
+      flag = 1
+      break
+    }
+  }
+  if(flag==1) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+pwd <- strsplit("UtplakshiS@13", '')[[1]]
+if(length(pwd)>=8 & (isCheckOne(pwd, low)) & (isCheckOne(pwd, up)) &(isCheckOne(pwd, num))) {
+  print("Password is Strong")
+} else {
+  print("Password is Weak")
+}
+```
+
+##### 6. Read your full name and print the unique characters present in your name. 
+ 
+```{r, echo=FALSE}
+uniqchars <- function(x) {
+  unique(strsplit(x, "")[[1]])
+}
+uniqchars("Utplakshi")
+```
+
+##### 7. Read your date of birth and print your age on today.
+```{r, echo=FALSE}
+dob = "2000-09-30"
+currentAge = difftime(Sys.Date(),dob, units = "weeks")
+num = as.integer(currentAge)
+print(paste("The current age is ",num/52.25, " years"))
+```
+
+##### 8. Generate  a sequence from 1 to 100 and print "Hop" for multiples of 3, print "Pop" for multiples of 5, and print "HopPop" for multiples of bth 3 and 5.
+```{r, echo=FALSE}
+for(i in 1:100) {
+  if(i%%3==0 & i%%5==0) {
+    print("HopPop")
+  } else if(i%%3==0) {
+    print("Hop")
+  } else if(i%%5==0) {
+    print("Pop")
+  } else {
+    print(i)
+  }
+}
+```
+
+##### 9. Generate a sequence of 26 alphabets and print first 10 characters in lower case and last 10 characters in upper case and make letters between 13th to 15th are in upper case.
+```{r, echo=FALSE}
+vec <- 97:122
+count = 1
+for(x in vec) {
+  if(count<=10) {
+    print(intToUtf8(x))
+  } else if(count>=13 & count<=15) {
+    print(toupper(intToUtf8(x)))
+  } else if(x>=17) {
+    print(toupper(intToUtf8(x)))
+  }
+  count=count+1
+}
+```
+
+##### 10. Given a number, write a function  to decide it is a perfect number or not. 
+```{r, echo=FALSE}
+n = 28
+i = 1
+s = 0
+while (i < n) {
+      if (n %% i == 0) {
+        s = s + i
+      }
+      i = i + 1
+}
+if (s == n) {
+      print(paste(n,"is a perfect number"))
+    } else{
+      print(paste(n,"is not a perfect number"))
+    }
+```
+##### 11. Given a number, write r script to print the pairwise factors of the given number.
+```{r, echo=FALSE}
+n = 100
+m = 0
+if(n%%2 == 0){
+  m = n/2
+} else{
+  m = (n+1)/2
+}
+for(i in 1 : m){
+  if(n%%i == 0){
+    print(paste(i, " ", n/i))
+  }
+}
+```
+##### 12. Write a program to find all the credentials(list) of the resume present in the job post(list) or not.  
+```{r, echo=FALSE}
+jobPostKeyword<-c("Java","C","Hero","Web Developer","Ruby")
+personsResumeKeyword<-c("Java","Cpp","Ruby","Python","C","Web Developer")
+cnt=0
+for(i in jobPostKeyword){
+  for (j in personsResumeKeyword) {
+    if(i==j){
+      cnt=cnt+1
+      break
+      }
+    else
+      next
+  }
+}
+if(cnt==length(jobPostKeyword)){
+  print("Yes person is elgible for job")}else
+  print("No person is not eligible")
+```
+
+##### 13. Given a vector, print the number of `NA` values present in the vector using a function. 
+
+```{r, echo=FALSE}
+count_NA<-function(v){
+  count=0
+  for(i in v){
+    if(is.na(i)==TRUE)
+      count=count+1
+  }
+  return(count)
+}
+v<-c(1,NA,3,NA,1,NA,7)
+print("The number of NA values in vector")
+print(count_NA(v))
+```
+
+##### 14. Given a string, print `yes` if number of vowels are greater than consonants in the given string else `no` using a function. 
+
+```{r, echo=FALSE}
+vowels = c('a','e','i','o','u')
+
+isGreater = function(str){
+  s = tolower(str)
+  count=0
+  for(c in s){
+    if (c %in% vowels){
+      count= count + 1
+    }
+  }
+  return(count)
+}
+
+isGreater2 = function(str){
+  return( length(str) - isGreater(str))
+}
+
+name = "Utplakshi"
+nv = isGreater(name)
+nc = isGreater2(name)
+print(paste("String:",name))
+if(nv>nc){
+  print("yes")
+}else{
+  print("no")
+}
+```
+##### 15. Read your full name in lower case, write R script to casefold all the first letters of the word in upper case.   
+```{r, echo=FALSE}
+funcc = function(str){
+  str = strsplit(str,"")[[1]]
+  n_str=""
+  for(i in seq_along(str)){
+    if(i==1 || str[i-1]==" "){
+      n_str = paste(n_str,toupper(str[i]),sep = "")
+    }else{
+      n_str = paste(n_str,str[i],sep = "")
+    }
+  }
+  print(n_str)
+}
+
+funcc("Utplakshi")
+```
+
+##### You reached to the end of the document, knit the worked out document into html format and uplaod the html file. 
+```{r, echo=TRUE}
+print(Sys.time())
+print(Sys.getenv("COMPUTERNAME"))
+print(Sys.getenv("USERNAME"))
+```

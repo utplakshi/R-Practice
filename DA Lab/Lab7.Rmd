@@ -1,0 +1,141 @@
+---
+title: "Foundations of Data Analytics"
+subtitle: Week-7
+author: "19BCE1597-Utplakshi"
+date: 08-10-2021
+output: html_document
+---
+```{r, echo=TRUE}
+defaultW <- getOption("warn") 
+options(warn = -1) 
+options(warn = defaultW)
+```
+##### 1. load and display the file named Demo.csv file.
+
+```{r, echo=TRUE}
+demo<-read.csv('E:/Datasets/Demo.csv',header=T)
+demo
+```
+
+##### 2. Find the slope and intercept of the regression equation by considering  `x` as the predictor and `y` as the target.
+```{r, echo=TRUE}
+mean_x = mean(demo$x)
+mean_y = mean(demo$y)
+
+demo$x1 = demo$x - mean_x
+demo$y1 = demo$y - mean_y
+
+demo$x11 = demo$x1 * demo$x1
+demo$xy = demo$x1 * demo$y1
+
+b1 = sum(demo$xy ) / sum(demo$x11)
+b1
+
+b0 = mean_y - b1*mean_x
+b0
+```
+ 
+##### 3. use the lm() function and fit the regression equation on the loaded data and check whether it is aligned with step2 or not. 
+```{r, echo=TRUE}
+model <- lm(y ~ x, data=demo)
+model
+```
+
+##### 4. load advertisement.csv data set and display the top 10 records in that.
+```{r, echo=TRUE}
+ad<-read.csv('E:/Datasets/Advertising.csv',header=T)
+head(ad,n=10)
+```
+
+##### 5. Find the relationship between Sales w.r.t TV by plotting a scatter plot with a regression line.
+
+```{r, echo=TRUE}
+r1 <- lm(Sales~TV, data=ad)
+with(ad, plot(TV, Sales))
+abline(r1)
+```
+
+##### 6. Find the relationship between Sales w.r.t Newspaper by plotting a scatter plot with a regression line. 
+ 
+```{r, echo=TRUE}
+r2 <- lm(Sales~Newspaper, data=ad)
+with(ad, plot(Newspaper, Sales))
+abline(r2)
+```
+
+##### 7. Find the relationship between Sales w.r.t Radio by plotting a scatter plot with a regression line.
+```{r, echo=TRUE}
+r3 <- lm(Sales~Radio, data=ad)
+with(ad, plot(Radio, Sales))
+abline(r3)
+```
+
+##### 8. Write down your inferences from the above three plots.
+```{r, echo=TRUE}
+print("Both TV and Radio have a positive linear correlation with the sales attribute. From the above graphs, TV is has more correlation to Sales than Radio and Newspaper.")
+```
+
+##### 9. Construct an appropriate plot to detect outliers in TV column.
+```{r, echo=TRUE}
+boxplot(ad$TV)
+```
+
+##### 10. Construct an appropriate plot to detect outliers in Newspaper column.
+```{r, echo=TRUE}
+boxplot(ad$Newspaper)
+
+```
+##### 11. Construct an appropriate plot to detect outliers in Radio column.
+```{r, echo=TRUE}
+boxplot(ad$Radio)
+
+```
+##### 12. Find the correlation coefficent of Sales with other three variables and write down your observations.  
+```{r, echo=TRUE}
+cor(ad$Sales, ad$TV)
+cor(ad$Sales, ad$Radio)
+cor(ad$Sales, ad$Newspaper)
+
+print("Sales and Tv are highly correlated. Correlational coefficient is greater than ) i.e positive for all variables signifies that all of them has a positive relationship with sales. i.e the move in the same direction as sales")
+```
+
+##### 13. Build a Linear Regression Model on Sales w.r.t TV column and display the coefficents.
+
+```{r, echo=TRUE}
+r1 <- lm(Sales~TV, data=ad)
+r1$coefficients
+```
+
+##### 14. check whether the created linear model to be statistically significant or not. 
+
+```{r, echo=TRUE}
+summary(r1)
+print("As the p-value is much less than 0.05, we reject the null hypothesis that β = 0. Hence there is a significant relationship between the variables in the linear regression model of the data set faithful.")
+```
+##### 15. Validate the assumptions of the linear regression model for the given dataset. 
+```{r, echo=TRUE}
+#Create the diagnostic plots using ggfortify
+library(ggfortify)
+reg1 <- lm(Sales~TV, data=ad)
+autoplot(reg1)
+head(reg1,4)
+#Creating plots using plot function
+#Linearity of the data
+plot(reg1, 1)
+#Homogeneity of variance
+plot(reg1,2)
+#Normality of residuals
+plot(reg1,3)
+# Cook's distance
+plot(reg1,4)
+# Residuals vs Leverage
+plot(reg1, 5)
+
+```
+
+##### You reached to the end of the document, knit the worked out document into html format and uplaod the html file. 
+```{r, echo=TRUE}
+print(Sys.time())
+print(Sys.getenv("COMPUTERNAME"))
+print(Sys.getenv("USERNAME"))
+```

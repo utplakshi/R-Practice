@@ -1,0 +1,220 @@
+---
+title: "Foundations of Data Analytics"
+subtitle: Week-6
+author: "19BCE1597"
+date: 01-10-2021
+output: html_document
+---
+```{r, echo=TRUE}
+defaultW <- getOption("warn") 
+options(warn = -1) 
+options(warn = defaultW)
+```
+##### 1. Perform the following operations.
+* install the tigerstats package
+* install the e1071 package
+* load the m111survey dataset
+* print the frequency distribution of the various seating positions in m111survey.
+* print the relative frequency distribution of the various seating positions in m111survey with 
+Double-precision.
+* Design a bar graph of the weight feel of participants in the m111survey data set.
+* Design a pie chart of the sleeping status of participants in the m111survey data set.
+
+```{r, echo=TRUE}
+#Installation of the libraries
+
+#install.packages("tigerstats")
+#install.packages("e1071")
+
+#Importing Libraries
+library(tigerstats)
+library(e1071)
+library(ggplot2)
+print(m111survey)
+# Frequency Distribution
+df <- data.table::data.table(col1 = as.character(m111survey$seat))
+freq <- table(df$col1)
+print(freq)
+# Relative Frequency Distribution
+seat_freq=table(m111survey$seat)
+size=nrow(m111survey)
+seat_freq_dist=seat_freq/size
+print(seat_freq_dist)
+#bar chart
+freq1 <- as.character(m111survey$weight_feel)
+ggplot(m111survey, aes(x=factor(freq1)))+geom_bar(fill="cyan")+labs(color="",x="Weight",y="Frequency")
+#pie chart
+labels=c("no","yes")
+y <- table(m111survey$enough_Sleep)
+pie(y, labels)
+
+```
+
+##### 2. Perform the following operations.
+* Display the top-10 records of numeric columns without NAs form m111survey.
+* Find the mean sleeping duration of participants from over weight group.
+* Find the mean sleeping duration of participants each of the weight groups.
+```{r, echo=TRUE}
+library(dplyr)
+
+df = m111survey
+num_cols <- unlist(lapply(df, is.numeric))         # Identify numeric columns
+data_num <- df[ , num_cols]                        # Subset numeric columns of data
+head(na.omit(data_num),10)
+m111survey %>% filter(weight_feel == "3_overweight")%>% summarize(Avg = mean(sleep))
+df %>%group_by(weight_feel)%>%summarise_at(vars(sleep), list(Avg_sleep = mean))
+```
+ 
+##### 3. Perform the following operations. 
+* Find the frequency distribution of the participant heights in m111survey.
+* Display the histogram of the participant heights in m111survey.
+* Find the relative frequency distribution of the participant heights in m111survey.
+* Find the cumulative frequency distribution of the participant heights in m111survey.
+* Design a cumulative frequency graph of the participant heights in m111survey.
+* Find the cumulative relative frequency distribution of the participant heights in m111survey.
+* Design a stem and leaf plot of the participant heights in m111survey.
+```{r, echo=TRUE}
+df <- data.table::data.table(col1 = as.character(m111survey$height))
+freq <- table(df$col1)
+height = m111survey$height
+breaks = seq(50, 80, by=5)    # half-integer sequence 
+height_cut = cut(height, breaks, right=FALSE)
+table(height_cut)
+hist(as.numeric(m111survey$height), xlab = "height",col = "cyan",border = "blue")
+# Cumulative Frequency
+x = cumsum(table(height_cut))
+x
+#cumulative frequecy graph
+plot(x, type = "o")
+# Cumulative Relative Frequency
+y = cumsum(table(height_cut))/nrow(m111survey)
+y
+#cumulative realtive frequecy graph
+plot(y, type = "o")
+# Stem and Leaf Plot
+stem(m111survey$height)
+```
+
+##### 4. Perform the following operations.
+* Find the scatter plot of the height and GPA scores in m111survey.
+Does it reveal any relationship between the variables?
+* Find the scatter plot of the sleep and GPA scores in m111survey.
+Does it reveal any relationship between the variables?
+* Find the scatter plot of the sleep and heights in m111survey.
+Does it reveal any relationship between the variables?
+
+```{r, echo=TRUE}
+height<-m111survey$height
+GPA<-m111survey$GPA
+sleep<-m111survey$sleep
+weight<-m111survey$weight_feel
+theme_set(theme_classic())
+#ScatterPlot of height and GPA Scores
+ggplot(m111survey,aes(x=height,y=GPA))+geom_point(aes(col=sleep, size=weight))+ labs(x="Height",y="GPA")
+#ScatterPlot of sleep and GPA Scores
+ggplot(m111survey,aes(x=sleep,y=GPA))+geom_point(aes(col=height, size=weight))+ labs(x="Sleep",y="GPA")
+#ScatterPlot of sleep and height
+ggplot(m111survey,aes(x=sleep,y=height))+geom_point(aes(col=GPA, size=weight))+ labs(x="Sleep",y="GPA")
+```
+
+##### 5. Perform the following operations.
+
+* find the mean GPA scores of m111survey data set.
+* find the median heights of m111survey data set.
+* Find the quartiles of the heights of participants in m111survey.
+* Find the 12th, 45th and 87th percentiles of the heights of participants in m111survey.
+* Find the range of the heights of participants in m111survey.
+* Find the interquartile range of heights of participants in m111survey without IQR function.
+* check the above answer with IQR function. 
+```{r, echo=TRUE}
+mean(m111survey$GPA)
+median(m111survey$height)
+quantile(m111survey$height)
+quantile(m111survey$height, c(.12, .45, .87))
+range(m111survey$height)
+IQR(m111survey$height)
+```
+
+##### 6. Perform the following operations. 
+* Find the horizontal box plot for heights of participants in m111survey.
+* Find the variance of the sleep duration of participants in m111survey.
+* Find the standard deviation of the sleep duration of participants in m111survey.
+* Find the covariance of height and sleeping time in the
+m111survey. Observe if there is any linear relationship
+between the two variables.
+* Find the correlation coefficient between sleep and GPA of m111survey. Draw your inferences. 
+```{r, echo=TRUE}
+#Horizontal Box Plot
+ggplot(m111survey,aes(y=height))+geom_boxplot(varwidth=T, fill="cyan")+coord_flip()+labs(title = "horizontal box plot for heights of participants in m111survey",x="frequency",y="height")+coord_flip()
+#Variance of sleep duration
+var(m111survey$sleep)
+#sd of sleep duration
+sd(m111survey$sleep)
+#covariance of height and sleeping time
+cov(m111survey$sleep, m111survey$height)
+#correlation coefficient between sleep and GPA
+cor(m111survey$GPA, m111survey$sleep)
+
+```
+
+##### 7.  
+* Find the second central moment of heights of m111survey participants.
+* Find the skewness of fastest variable in m111survey. Mention your observations. 
+* Find the kurtosis of fastest variable in m111survey. Mention your observations. 
+```{r, echo=TRUE}
+heights = m111survey$height     
+moment(heights, order=2, center=TRUE)
+fast = m111survey$fastest
+skewness(fast)
+kurtosis(fast)
+```
+
+##### 8. Suppose there are twelve multiple choice questions in an English class quiz. Each question has five possible answers, and only one of them is correct. Find the probability of having four or less correct answers if a student attempts to answer every question at random.
+
+```{r, echo=TRUE}
+pbinom(4, size=12, prob=1/5)
+```
+
+##### 9. If there are twelve cars crossing a bridge per minute on average, find the probability of having seventeen or more cars crossing the bridge in a particular minute.
+
+```{r, echo=TRUE}
+round(ppois(16, lambda=12, lower=FALSE),digits = 2)
+```
+
+##### 10. Select 5 random numbers between zero and one.
+```{r, echo=TRUE}
+runif(5,0,1)
+```
+##### 11. Suppose the mean checkout time of a supermarket cashier is three minutes. Find the probability of a customer checkout being completed by the cashier in less than two minutes. 
+
+```{r, echo=TRUE}
+pexp(2, rate=1/3)
+```
+##### 12. Assume that the test scores of a college entrance exam fits a normal distribution. Furthermore, the mean test score is 72, and the standard deviation is 15.2. What is the percentage of students scoring 84 or more in the exam?
+
+```{r, echo=TRUE}
+pnorm(84, mean=72, sd=15.2, lower.tail=FALSE)
+```
+
+##### 13. Find the 95th percentile of the Chi-Squared distribution with 7 degrees of freedom.
+
+```{r, echo=TRUE}
+qchisq(.95, df=7)
+```
+
+##### 14. Find the 2.5th and 97.5th percentiles of the Student t distribution with 5 degrees of freedom.
+
+```{r, echo=TRUE}
+qt(c(0.25, 0.975), df=5)
+
+```
+##### 15. Find the 95 th percentile of the F distribution with (5, 2) degrees of freedom
+```{r, echo=TRUE}
+qf(.95, df1=5, df2=2)
+```
+##### You reached to the end of the document, knit the worked out document into html format and uplaod the html file. 
+```{r, echo=TRUE}
+print(Sys.time())
+print(Sys.getenv("COMPUTERNAME"))
+print(Sys.getenv("USERNAME"))
+```

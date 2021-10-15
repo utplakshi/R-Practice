@@ -1,0 +1,158 @@
+library(igraph)
+g<-graph.empty(n=10,directed=TRUE)
+plot(g)
+g<-graph.full(n=10,directed = FALSE,loops = FALSE)
+plot(g)
+g<-graph.star(n=10,mode = "out")
+plot(g)
+g<-graph.star(n=10,mode="in")
+plot(g)
+g<-graph.ring(n=10)
+plot(g)
+edges<-c(1,2, 3,2, 2,4)
+g<-graph(edges, n=max(edges), directed=TRUE)
+plot(g)
+vcount(g)
+ecount(g)
+neighbors(g, V(g)[1], mode = 1)
+incident(g,V(g)[2], mode=c("all", "out", "in", "total"))
+is.directed(g)
+are.connected(g,V(g)[1],V(g)[3])
+g<-read.graph("sample_net",format = "ncol",directed=F)
+g
+m<-get.adjacency(g)
+m
+###############################Questions########################################
+library(igraph)
+library(dplyr)
+# Read in CSV files with edge and node attributes
+original_edgelist <- read.csv("E:/Datasets/Lab7-DataSet_Edges.csv", stringsAsFactors = FALSE)
+original_edgelist
+original_nodelist <- read.csv("E:/Datasets/Lab7-DataSet_Adjacency.csv", stringsAsFactors = FALSE)
+original_nodelist
+
+# Create iGraph object
+graph <- graph.data.frame(original_edgelist, directed = FALSE, vertices = original_nodelist)
+plot(graph)
+graph <- graph.data.frame(original_edgelist, directed = TRUE, vertices = original_nodelist)
+plot(graph)
+# Calculate various network properties, adding them as attributes
+# to each node/vertex
+V(graph)$comm <- membership(optimal.community(graph))
+V(graph)$comm
+#V(graph)$degree <- degree(graph)
+#V(graph)$degree
+#V(graph)$closeness <- centralization.closeness(graph)$res
+#V(graph)$closeness 
+V(graph)$betweenness <- centralization.betweenness(graph)$res
+V(graph)$betweenness
+V(graph)$eigen <- centralization.evcent(graph)$vector
+V(graph)$eigen
+E(graph)$color="red"
+E(graph)$width=1
+plot(graph, layout=layout.circle, edge.width=E(graph)$width, edge.color= E(graph)$color, main = "Graph using igraph")
+#Display the vertices of the graph
+V(graph)
+#Display the edges of the graph
+E(graph)
+#network as matrix
+get.adjacency(graph)
+#name of the vertices
+V(graph)
+#count number of edges and vertices
+vcount(graph)
+ecount(graph)
+vcount(graph)==ecount(graph)
+#adjacency vertex of each vertex
+m<-as.matrix(graph)
+m
+adjacent_vertices(graph, V(graph), mode = c("out", "in", "all", "total"))
+#Vertex with maximum degree
+V(graph)$name[igraph::degree(graph)==max(igraph::degree(graph))]
+#Vertex with minimum degree
+V(graph)$name[igraph::degree(graph)==min(igraph::degree(graph))]
+#converting the undirected graph into directed graph
+graph <- graph.data.frame(original_edgelist, directed = TRUE, vertices = original_nodelist)
+plot(graph)
+#displaying the adjacency matrix
+get.adjacency(graph)
+#Displaying in and out degree of the directed graph
+igraph::degree(graph)
+igraph::degree(graph,mode="in")
+igraph::degree(graph,mode="out")
+###############PLOTTING THE GRAPHS SEPARATELY AND FINDING THE ANSWERS###########
+#1. Read the adjancency matrix
+adj <- read.csv("E:/Datasets/Lab7-DataSet_Adjacency.csv",  sep=",", row.names = 1, check.names = FALSE)
+adj
+# 2. Read the given edge matrix into R(edges.csv)
+edg <- read.csv("E:/Datasets/Lab7-DataSet_Edges.csv")
+edg
+#3. Create and plot the graph from the adjacency matrix and edge matrix (customize the vertex
+#color edge size, vertex frame and label)
+# For adj data set
+m <- as.matrix(adj)
+m
+#4. Plotting a graph for adjancency matrix
+new_adj <- graph.adjacency(m,mode ="directed",weighted=NULL, diag=FALSE)
+E(new_adj)$width <-1
+E(new_adj)$color <-"darkolivegreen4"
+plot(new_adj, edge.width = E(new_adj)$width, edge.arrow.size=0.5,
+     layout= layout.fruchterman.reingold, edge.color= E(new_adj)$color)
+# For Edge dataset
+new_edg <- graph.data.frame(edg, directed = TRUE)
+E(new_edg)$width <- 1
+E(new_edg)$color <- "seagreen3"
+plot(new_edg, edge.width = E(new_edg)$width ,edge.arrow.size=0.5,
+     layout=layout.fruchterman.reingold, edge.color =E(new_edg)$color)
+# 4. Display the edges & vertices, the network as matrix and the names of vertices
+# For ADJ dataset
+V(new_adj)
+E(new_adj)
+get.adjacency(new_adj)
+V(new_adj)$name
+V(new_edg)
+E(new_edg)
+get.adjacency(new_edg)
+V(new_edg)$name
+vcount(new_adj)
+ecount(new_adj)
+vcount(new_edg)
+ecount(new_edg)
+#5. Display the adjacency vertices of each vertex(individual) in the created graph
+# For ADJ dataset
+for (v in V(new_adj)$name)
+{
+  print(adjacent_vertices(new_adj, v, mode = c("out","in","all","total")))
+}
+# For Edge dataset
+
+for (v in V(new_edg)$name)
+{
+  print(adjacent_vertices(new_adj, v, mode = c("out","in","all","total")))
+}
+max(igraph::degree(new_adj))
+min(igraph::degree(new_adj))
+max(igraph::degree(new_edg))
+min(igraph::degree(new_edg))
+#Create & set vertex attribute property named profit and values("+", "-", "+", "-", "+", "-",
+#"+", "-", "+")
+new_edg <- set_vertex_attr(new_edg, 'profit', value = c("+", "-", "+", "-", "+", "-","+", "-", "+"))
+vertex_attr(new_edg)
+#Create & set vertex attribute property named type and values(either leap or non-leap year)
+new_edg <- set_vertex_attr(new_edg, 'Leap Year', value = c(1,0,0,0,1,0,1,0,0))                           
+vertex_attr(new_edg)    
+#Create & set edge attribute named weight and values (if edge exits in between leap year
+#vertices then 5 else 1 )
+new_edg <- set_edge_attr(new_edg, 'weight value', value = c(5,5,5,1,5,1,1,5,1))
+edge_attr(new_edg)
+#Convert the created un-directed graph into directed graph based on the following rule
+#a. edge directed towards high value vertex
+#b. if any one of the vertex is leap year then put the reverse edge with same weight.
+new_adj = as.directed(new_adj)
+plot(new_adj,edge.arrow.size=0.5, vertex.color="blue",vertex.size=15,
+     vertex.frame.color="black",vertex.label.color="red",
+     vertex.label.cex=0.8, vertex.label.dist=2, edge.curved=0.2)
+#Display the in-degree and out-degree of each vertex of resultant directed graph
+igraph::degree(new_adj,mode="in")
+igraph::degree(new_adj,mode="out")
+igraph::degree(new_adj)
