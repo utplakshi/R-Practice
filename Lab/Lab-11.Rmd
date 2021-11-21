@@ -1,0 +1,97 @@
+---
+title: "Foundations of Data Analytics"
+subtitle: Week-11
+author: "19BCE1597-Utplakshi"
+date: "11/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Prepare the Data
+```{r, echo=FALSE}
+library(Hmisc)
+library(psych)
+library(car)
+```
+
+## Loading DataSet
+```{r, echo=TRUE}
+house <- read.csv("E:/Datasets/hdi.csv")
+head(house)
+na.omit(house)
+```
+
+```{r}
+set.seed(2017)
+split <- sample(seq_len(nrow(house)), size = floor(0.75 * nrow(house)))
+hdi <- house[split, ]
+test <- house[-split, ]
+dim(hdi)
+```
+
+```{r}
+hdi <- subset(hdi, select=c(HDI, LifeExpectancy, ExpectedYearsOfSchooling , MeanYearsOfSchooling, GNIperCapita, GNI.rank..HDI.rank.))
+head(hdi)
+```
+
+```{r}
+clean<-na.omit(hdi)
+clean
+```
+
+```{r}
+sapply(clean, function(x) sum(is.na(x)))
+summary(clean)
+```
+
+```{r}
+fit <-  lm(HDI ~ LifeExpectancy  , data=clean)
+summary(fit)
+```
+
+```{r}
+pairs.panels(clean, col='red')
+```
+
+
+```{r}
+fit <-  lm(HDI ~ LifeExpectancy + ExpectedYearsOfSchooling  , data=clean)
+summary(fit)
+```
+
+```{r}
+confint(fit, conf.level=0.95)
+```
+
+```{r}
+plot(fit)
+```
+
+```{r}
+test <- subset(test, select=c(HDI,LifeExpectancy ,ExpectedYearsOfSchooling ))
+prediction <- predict(fit, newdata = test)
+```
+
+```{r}
+head(prediction)
+```
+
+```{r}
+head(hdi$LifeExpectancy)
+```
+
+```{r}
+SSE <- sum((hdi$LifeExpectancy - prediction) ^ 2)
+SST <- sum((hdi$LifeExpectancy - mean(hdi$LifeExpectancy)) ^ 2)
+1 - SSE/SST
+```
+
+##### You reached to the end of the document, knit the worked out document into html format and uplaod the html file. 
+```{r, echo=TRUE}
+print(Sys.time())
+print(Sys.getenv("COMPUTERNAME"))
+print(Sys.getenv("USERNAME"))
+```
